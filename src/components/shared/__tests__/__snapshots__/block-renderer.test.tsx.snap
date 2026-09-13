@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BlockRenderer - BlockView > matches snapshot for hero block 1`] = `"<section class="bg-gradient-to-br from-background via-background to-primary/5 py-20"><div class="mx-auto max-w-3xl px-4 text-center"><h1 class="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">Snapshot Hero</h1><p class="mt-4 text-lg text-muted-foreground">sub</p><div class="mt-8"><a href="/">Click</a></div></div></section>"`;
+
+exports[`BlockRenderer - BlockView > matches snapshot for markdown block 1`] = `
+"<section class="py-8"><div class="mx-auto max-w-3xl px-4"><div class=""><div class="prose prose-neutral max-w-none dark:prose-invert leading-relaxed"><h2>Hola</h2>
+<p><strong>negrita</strong> y lista:</p>
+<ul>
+<li>uno</li>
+<li>dos</li>
+</ul></div></div></div></section>"
+`;

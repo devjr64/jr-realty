@@ -1,0 +1,54 @@
+# =============================================================================
+# CD — Deploy to VPS on push to main (non-Docker)
+# =============================================================================
+# WHY: every push/merge to main is automatically deployed to the production
+# VPS via SSH using a dedicated deploy user and key.
+#
+# Required GitHub secrets:
+#   - VPS_SSH_PRIVATE_KEY: private SSH key for the deploy user
+#
+# Required GitHub variables:
+#   - VPS_HOST: IP or hostname of the VPS
+#   - VPS_USER: SSH user (e.g. deploy-jrrealty)
+#   - VPS_DEPLOY_PATH: absolute path to the app on the VPS (e.g. /opt/jr-realty)
+#
+# VPS prerequisites:
+#   - Node.js 24, PostgreSQL 16, pm2 installed
+#   - Deploy user exists and has the public SSH key
+#   - .env file exists at VPS_DEPLOY_PATH with production secrets
+#   - pm2 ecosystem file exists at VPS_DEPLOY_PATH/ecosystem.config.js
+# =============================================================================
+
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.VPS_HOST }}
+          username: ${{ vars.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ${{ vars.VPS_DEPLOY_PATH }}
+            echo "Pulling latest code..."
+            git pull origin main
+            echo "Installing dependencies..."
+            pnpm install --frozen-lockfile
+            echo "Generating Prisma client..."
+            pnpm exec prisma generate
+            echo "Running database migrations..."
+            pnpm run db:deploy
+            echo "Building Next.js app..."
+            pnpm run build
+            echo "Reloading pm2..."
+            pm2 reload ecosystem.config.js --update-env
+            echo "Deployment complete."

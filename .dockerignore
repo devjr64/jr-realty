@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment (never commit)
+.env
+.env.local
+.env*.local
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Misc
+*.log
+.DS_Store
+.vercel
+
+# Task management / agent scratch
+.tmp/
+
+# opencode agent configuration (tooling, no se copia a la imagen)
+.opencode/
+
+# Personal
+.private/

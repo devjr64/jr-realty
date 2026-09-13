@@ -1,0 +1,337 @@
+// Prisma schema — JR Realty (MVP)
+// Fuente autoritativa: docs/PLANIFICACION-MVP.md (sección 5)
+
+generator client {
+  provider = "prisma-client-js"
+  // C3: engine nativo para Alpine/musl (imagen Docker runner)
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// === USUARIOS Y ROLES ===
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(CLIENT)
+  phone         String?
+  avatarUrl     String?
+  bio           String?
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  agent         Agent?
+  blogPosts     BlogPost[]
+  mcpApiKeys    McpApiKey[]
+}
+
+enum Role {
+  SUPER_ADMIN
+  AGENT
+  CLIENT // Future feature: client portal with property favorites, saved searches, agent messaging
+}
+
+// === ZONAS ===
+model Zone {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String?
+  imageUrl    String?
+  parentId    String?
+  parent      Zone?       @relation("ZoneHierarchy", fields: [parentId], references: [id])
+  children    Zone[]      @relation("ZoneHierarchy")
+  properties  Property[]
+  projects    Project[]
+
+  @@index([parentId])
+}
+
+// === PROPIEDADES ===
+model Property {
+  id             String           @id @default(cuid())
+  title          String
+  slug           String           @unique
+  description    String           @db.Text
+  type           PropertyType
+  operation      OperationType
+  price          Decimal
+  currency       Currency         @default(USD)
+  bedrooms       Int?
+  bathrooms      Int?
+  halfBathrooms  Int?
+  parkingSpots   Int?
+  landAreaM2     Decimal?
+  buildAreaM2    Decimal?
+  yearBuilt      Int?
+  address        String
+  latitude       Float?
+  longitude      Float?
+  features       Json             @default("[]")     // ["pool","gym","security",...]
+  videoUrl       String?
+  virtualTourUrl String?
+  status         PropertyStatus   @default(AVAILABLE)
+  featured       Boolean          @default(false)
+  viewsCount     Int              @default(0)
+
+  // Relaciones
+  zoneId         String
+  zone           Zone             @relation(fields: [zoneId], references: [id])
+  agentId        String
+  agent          Agent            @relation(fields: [agentId], references: [id])
+
+  images         PropertyImage[]
+  tags           PropertyTag[]
+  leads          Lead[]
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([type, operation, status])
+  @@index([price])
+  @@index([zoneId])
+  @@index([agentId])
+  @@index([latitude, longitude])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  sortOrder  Int      @default(0)
+
+  @@index([propertyId])
+}
+
+model PropertyTag {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tag        Tag
+
+  @@unique([propertyId, tag])
+  @@index([propertyId])
+}
+
+enum Tag {
+  FURNISHED         // Amoblado
+  REPOSSESSED       // Reposeído bancario
+  OPPORTUNITY       // Oportunidad de inversión
+  NEW_CONSTRUCTION  // Estreno / Nuevo
+  PREMIUM           // Premium
+  PET_FRIENDLY
+}
+
+enum PropertyType {
+  APARTMENT        // Apartamento
+  HOUSE            // Casa
+  PENTHOUSE        // PH
+  OFFICE           // Oficina
+  COMMERCIAL       // Local Comercial
+  WAREHOUSE        // Bodega/Galera
+  LAND             // Terreno
+  FARM             // Finca
+  BUILDING         // Edificio
+  CONSULTING_ROOM  // Consultorio
+  TOWNHOUSE        // Townhouse
+  BEACH_HOUSE      // Casa de Playa
+  PARKING          // Estacionamiento
+}
+
+enum OperationType {
+  SALE  // Venta
+  RENT  // Alquiler
+  BOTH  // Ambos
+}
+
+enum Currency {
+  USD
+  VES  // Bolívar (moneda local)
+}
+
+enum PropertyStatus {
+  AVAILABLE  // Disponible
+  SOLD       // Vendido
+  RENTED     // Alquilado
+  RESERVED   // Reservado
+  INACTIVE   // Inactivo
+}
+
+// === AGENTES ===
+model Agent {
+  id               String     @id @default(cuid())
+  userId           String     @unique
+  user             User       @relation(fields: [userId], references: [id])
+  title            String?    // Ej: "Asesor Inmobiliario Senior"
+  phone            String
+  whatsapp         String?
+  properties       Property[]
+  projects         Project[]
+  leads            Lead[]     @relation("AssignedAgent")
+  active           Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+}
+
+// === PROYECTOS (Pre-construcción) ===
+model Project {
+  id             String       @id @default(cuid())
+  name           String
+  slug           String       @unique
+  description    String       @db.Text
+  developer      String?
+  zoneId         String
+  zone           Zone         @relation(fields: [zoneId], references: [id])
+  agentId        String?
+  agent          Agent?       @relation(fields: [agentId], references: [id])
+  deliveryDate   DateTime?
+  priceRangeMin  Decimal?
+  priceRangeMax  Decimal?
+  coverImage     String
+  gallery        Json         @default("[]")
+  status         ProjectStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([agentId])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  SOLD_OUT
+  COMING_SOON
+}
+
+// === LEADS (CRM) ===
+model Lead {
+  id              String       @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  message         String?      @db.Text
+  source          LeadSource   @default(WEBSITE)
+  status          LeadStatus   @default(NEW)
+  propertyId      String?
+  property        Property?    @relation(fields: [propertyId], references: [id])
+  assignedAgentId String?
+  assignedAgent   Agent?       @relation("AssignedAgent", fields: [assignedAgentId], references: [id])
+  notes           Json         @default("[]")  // [{ text: string, createdAt: Date }]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([propertyId])
+  @@index([assignedAgentId])
+  @@index([status])
+}
+
+enum LeadSource {
+  WEBSITE       // Formulario web
+  WHATSAPP      // WhatsApp
+  PHONE         // Llamada telefónica
+  REFERRAL      // Referido
+  SOCIAL_MEDIA
+  WALK_IN
+}
+
+enum LeadStatus {
+  NEW             // Nuevo
+  CONTACTED       // Contactado
+  FOLLOWING_UP    // En seguimiento
+  VISIT_SCHEDULED // Visita agendada
+  NEGOTIATING     // Negociación
+  CLOSED_WON      // Cerrado ganado
+  CLOSED_LOST     // Cerrado perdido
+}
+
+// === CMS: Páginas ===
+model Page {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         Json                           // Bloques del editor
+  metaTitle       String?
+  metaDescription String?
+  published       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// === BLOG ===
+model BlogPost {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  excerpt         String?
+  content         Json
+  coverImage      String?
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+  published       Boolean  @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+// === TESTIMONIOS ===
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?  // Ej: "Propietario", "Comprador"
+  content   String   @db.Text
+  rating    Int      @default(5)
+  avatarUrl String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// === CONFIGURACIÓN DEL SITIO ===
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json
+}
+
+// === MCP SERVER ===
+model McpApiKey {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  name        String
+  environment String    @default("development")
+  userId      String
+  active      Boolean   @default(true)
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  user        User      @relation(fields: [userId], references: [id])
+  auditLogs   McpAuditLog[]
+
+  @@index([key])
+  @@index([userId])
+}
+
+model McpAuditLog {
+  id          String    @id @default(cuid())
+  apiKeyId    String
+  operation   String
+  resourceId  String?
+  success     Boolean
+  error       String?
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+
+  apiKey      McpApiKey @relation(fields: [apiKeyId], references: [id])
+
+  @@index([apiKeyId])
+  @@index([operation])
+  @@index([createdAt])
+}

@@ -1,0 +1,127 @@
+# =============================================================================
+# CI — lint → build (0 Edge warnings) → coverage 80% → playwright
+# =============================================================================
+# WHY this pipeline exists: Phase 0+H gate before prod. Every push/PR must
+# prove lint clean, build has 0 Edge warnings (middleware ~86kB), coverage
+# meets 80% threshold, and E2E smoke passes. SEED_ADMIN_* NOT required here
+# — test DB uses ephemeral postgres:16 service with POSTGRES_PASSWORD=postgres
+# and DB=jrrealty_test (see services + env below). Prod seed secrets stay out
+# of CI; DATABASE_URL points to localhost test DB only.
+#
+# Triggers: branch push + pull_request. PR is blocked if any job fails
+# (coverage <80 or build warns → job exits non-zero → GitHub blocks merge
+# when branch protection requires CI check).
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    # -------------------------------------------------------------------------
+    # Service: PostgreSQL 16 — ephemeral test DB for vitest integration + E2E
+    # WHY postgres:16: matches production (schema.prisma) and docker-compose db.
+    # No SEED_ADMIN_* needed — seed is NOT run in CI; tests use truncate isolation.
+    # -------------------------------------------------------------------------
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jrrealty_test
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Test DB — ephemeral, no secrets needed (SEED_ADMIN_* intentionally absent)
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jrrealty_test?schema=public
+      # Auth — dummy for build/test (real AUTH_SECRET required only in prod/deploy)
+      AUTH_SECRET: ci-test-secret-32chars-minimum-placeholder
+      AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      CI: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13
+          cache: pnpm
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Build (0 Edge warnings, middleware ~86kB)
+        run: pnpm run build
+        # WHY separate step: build must produce 0 Edge warnings. Next.js exits
+        # non-zero on Edge warnings when middleware imports Node deps (auth.config
+        # edge-safe guard). If build warns → job fails → PR blocked.
+
+      - name: Prisma generate + migrate deploy (test DB)
+        run: |
+          pnpm exec prisma generate
+          pnpm exec prisma migrate deploy
+
+      - name: Seed database (test users for E2E)
+        run: pnpm run db:seed
+        env:
+          SEED_ADMIN_EMAIL: admin@jrrealty.test
+          SEED_ADMIN_PASSWORD: Admin123!
+
+      - name: Tests with coverage (gate 80%)
+        run: pnpm exec vitest run --coverage
+        # WHY: vitest.config.ts thresholds 80% lines/fn/branch/stmt, perFile false.
+        # v8 provider exits non-zero when <80% → job fails → PR blocked.
+
+      - name: Install Playwright (chromium with deps)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Playwright E2E (chromium)
+        run: pnpm exec playwright test
+        # WHY chromium only: keeps CI fast (single browser per playwright.config.ts).
+        # Uses webServer `pnpm run dev --port 3000` with DATABASE_URL test DB.
+
+      - name: Upload coverage artifacts (lcov + html)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage/lcov.info
+            coverage/index.html
+            coverage/
+          if-no-files-found: warn
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: warn

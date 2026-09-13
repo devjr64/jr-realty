@@ -1,0 +1,54 @@
+# =============================================================================
+# Development-only Docker Compose
+# =============================================================================
+# This file is for local development only. It provides PostgreSQL databases
+# for the app and integration tests. The production app runs natively on
+# the VPS (Node.js 24 + PostgreSQL 16 + pm2), not in Docker.
+#
+# Usage:
+#   docker compose up -d db          # Start dev database
+#   docker compose up -d db-test     # Start test database (for integration tests)
+# =============================================================================
+
+services:
+  # Dev database — PostgreSQL 16 on port 5432
+  db:
+    image: postgres:16-alpine
+    container_name: jrrealty-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jrrealty}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_in_production}
+      POSTGRES_DB: ${POSTGRES_DB:-jrrealty}
+    ports:
+      - '5432:5432'
+    volumes:
+      - jrrealty_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-jrrealty} -d ${POSTGRES_DB:-jrrealty}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Test database — PostgreSQL 16 on port 5433 (for integration tests)
+  db-test:
+    image: postgres:16-alpine
+    container_name: jrrealty-db-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jrrealty_test
+      POSTGRES_PASSWORD: jrrealty_test
+      POSTGRES_DB: jrrealty_test
+    ports:
+      - '5433:5432'
+    volumes:
+      - jrrealty_test_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U jrrealty_test -d jrrealty_test']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  jrrealty_pgdata:
+  jrrealty_test_pgdata:

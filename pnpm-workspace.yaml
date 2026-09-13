@@ -1,0 +1,22 @@
+# Configuración de pnpm (pnpm 11+ — las settings viven en pnpm-workspace.yaml,
+# no en package.json).
+#
+# Seguridad: pnpm bloquea por defecto los scripts de build (postinstall) de
+# dependencias. `allowBuilds` es la allowlist explícita de paquetes autorizados
+# (principio de menor privilegio). Solo se incluyen los que el proyecto necesita:
+#   - prisma/@prisma/*: generan el client y descargan engines
+#   - esbuild: binario nativo (usado por tsx)
+#   - sharp: imágenes nativas (usado por Next.js)
+#   - unrs-resolver: resolver nativo (dependencia de eslint-config-next)
+#   - @playwright/test + playwright: binarios nativos de Playwright (chromium).
+#     Verificado en subtask 09/10: `pnpm install` requiere allowBuilds para
+#     descargar browsers; sin esta entrada falla silenciosamente (postinstall bloqueado).
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  sharp: true
+  unrs-resolver: true
+  '@playwright/test': true
+  playwright: true

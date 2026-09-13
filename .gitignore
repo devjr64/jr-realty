@@ -1,0 +1,54 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.pnpm-store/
+mcp-server/node_modules/
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# uploads locales (runtime)
+/public/uploads/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env files
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# task management / agent scratch
+.tmp/
+
+# opencode agent configuration (tooling, no se versiona)
+.opencode/
+.openchamber/
+
+# Playwright artifacts
+test-results/
+playwright-report/
+
+# personal
+.private/

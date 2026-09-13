@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MarkdownRenderer > Verifies XSS snapshot is sanitized 1`] = `"<div class="prose prose-neutral max-w-none dark:prose-invert leading-relaxed"><p>Hola alert(1) mundo</p></div>"`;
+
+exports[`MarkdownRenderer > matches snapshot for gfm table markdown 1`] = `"<div class="prose prose-neutral max-w-none dark:prose-invert leading-relaxed"><table><thead><tr><th>col1</th><th>col2</th></tr></thead><tbody><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></tbody></table></div>"`;
+
+exports[`MarkdownRenderer > matches snapshot for heading markdown 1`] = `
+"<div class="prose prose-neutral max-w-none dark:prose-invert leading-relaxed"><h2>Inversión en Venezuela</h2>
+<p>Contenido <strong>negrita</strong></p></div>"
+`;
