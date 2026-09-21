@@ -66,7 +66,7 @@ async function main() {
   const serverName = environment === 'production' ? 'jrrealty-prod' : 'jrrealty-dev'
   const serverUrl =
     environment === 'production'
-      ? 'https://jrrealty.com.ve/api/mcp'
+      ? 'https://jrrealty.com/api/mcp'
       : 'http://localhost:3000/api/mcp'
 
   console.log('1. Add this key to your .opencode/opencode.jsonc:')

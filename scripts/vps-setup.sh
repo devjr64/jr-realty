@@ -110,14 +110,14 @@ DATABASE_URL="postgresql://jrrealty:CHANGE_ME_PASSWORD@localhost:5432/jrrealty?s
 # Generate a strong secret with: openssl rand -base64 32
 # -----------------------------------------------------------------------------
 AUTH_SECRET=CHANGE_ME_GENERATE_WITH_OPENSSL
-AUTH_URL="https://jrrealty.com.ve"
-NEXT_PUBLIC_APP_URL="https://jrrealty.com.ve"
+AUTH_URL="https://jrrealty.com"
+NEXT_PUBLIC_APP_URL="https://jrrealty.com"
 
 # -----------------------------------------------------------------------------
 # Email (Resend) — optional until contact forms need to send email
 # -----------------------------------------------------------------------------
 RESEND_API_KEY=""
-EMAIL_FROM="JR Realty <noreply@jrrealty.com.ve>"
+EMAIL_FROM="JR Realty <noreply@jrrealty.com>"
 
 # -----------------------------------------------------------------------------
 # Phase 2 optional integrations
@@ -175,4 +175,4 @@ echo "After that, every push to main on GitHub will deploy automatically."
 echo ""
 echo "To seed production with only the super admin (no demo data):"
 echo "   cd $DEPLOY_PATH"
-echo "   sudo -u $USER SEED_DEMO_DATA=false SEED_ADMIN_EMAIL=admin@jrrealty.com.ve SEED_ADMIN_PASSWORD=YOUR_PASSWORD pnpm exec tsx prisma/seed.ts"
+echo "   sudo -u $USER SEED_DEMO_DATA=false SEED_ADMIN_EMAIL=admin@jrrealty.com SEED_ADMIN_PASSWORD=YOUR_PASSWORD pnpm exec tsx prisma/seed.ts"

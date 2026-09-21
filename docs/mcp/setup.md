@@ -163,7 +163,7 @@ const key = generateMcpApiKey('production')
 ```bash
 MCP_ENABLED=true
 MCP_API_KEY=mcp_prod_your_production_key
-MCP_SERVER_URL=https://jrrealty.com.ve/api/mcp
+MCP_SERVER_URL=https://jrrealty.com/api/mcp
 ```
 
 3. Deploy to production server

@@ -88,7 +88,7 @@ export function AgentForm({ initial }: AgentFormProps) {
               name="email"
               type="email"
               defaultValue={initial?.email}
-              placeholder="correo@jrrealty.com.ve"
+              placeholder="correo@jrrealty.com"
               required
               disabled={isPending}
             />

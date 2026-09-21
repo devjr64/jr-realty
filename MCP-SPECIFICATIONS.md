@@ -771,8 +771,8 @@ MCP_ENABLED=true
 MCP_API_KEY=mcp_prod_x9y8z7w6v5u4t3s2r1q0p9o8n7m6l5k4
 
 # App URLs
-NEXT_PUBLIC_APP_URL=https://jrrealty.com.ve
-MCP_SERVER_URL=https://jrrealty.com.ve/api/mcp
+NEXT_PUBLIC_APP_URL=https://jrrealty.com
+MCP_SERVER_URL=https://jrrealty.com/api/mcp
 ```
 
 ### 6.2 AI Agent Configuration
@@ -796,7 +796,7 @@ MCP_SERVER_URL=https://jrrealty.com.ve/api/mcp
         "args": ["mcp-server/index.js"],
         "env": {
           "MCP_API_KEY": "mcp_prod_x9y8z7w6v5u4t3s2r1q0p9o8n7m6l5k4",
-          "MCP_SERVER_URL": "https://jrrealty.com.ve/api/mcp"
+          "MCP_SERVER_URL": "https://jrrealty.com/api/mcp"
         }
       }
     }

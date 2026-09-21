@@ -94,7 +94,7 @@ async function main() {
         tagline: 'Tu mejor aliado en el mercado inmobiliario',
         phone: '+58 212-555-0140',
         whatsapp: '+58 212-555-0140',
-        email: 'admin@jrrealty.com.ve',
+        email: 'admin@jrrealty.com',
         address: 'Caracas, Venezuela',
         currency: 'USD',
       },

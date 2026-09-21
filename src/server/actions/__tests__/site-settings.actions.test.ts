@@ -37,7 +37,7 @@ function validSettings(overrides: Record<string, string> = {}): FormData {
     tagline: 'Tu hogar ideal',
     phone: '+58 2125551234',
     whatsapp: '+58 2125558765',
-    email: 'info@jrrealty.com.ve',
+    email: 'info@jrrealty.com',
     address: 'Calle 50, Venezuela',
     currency: 'USD',
     'social.facebook': 'https://facebook.com/mc',

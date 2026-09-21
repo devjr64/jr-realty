@@ -113,7 +113,7 @@ export default async function PropiedadDetallePage({ params }: PropiedadDetalleP
     '@type': 'RealEstateListing',
     name: property.title,
     description: property.description,
-    url: `https://jrrealty.com.ve/propiedades/${property.slug}`,
+    url: `https://jrrealty.com/propiedades/${property.slug}`,
     offers: {
       '@type': 'Offer',
       price: Number(property.price),

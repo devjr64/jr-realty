@@ -75,7 +75,7 @@ cp .env.example .env    # fill DATABASE_URL, AUTH_SECRET, ...
 
 # 4. Migrate + seed demo data
 pnpm run db:migrate
-SEED_ADMIN_EMAIL=admin@jrrealty.com.ve SEED_ADMIN_PASSWORD='Admin123!' pnpm run db:seed
+SEED_ADMIN_EMAIL=admin@jrrealty.com SEED_ADMIN_PASSWORD='Admin123!' pnpm run db:seed
 
 # 5. Run (port 3000 pinned)
 pnpm run dev            # → http://localhost:3000
@@ -85,7 +85,7 @@ pnpm run dev            # → http://localhost:3000
 
 | Role        | Email                      | Password    |
 | ----------- | -------------------------- | ----------- |
-| SUPER_ADMIN | `admin@jrrealty.com.ve`    | `Admin123!` |
+| SUPER_ADMIN | `admin@jrrealty.com`    | `Admin123!` |
 | AGENT       | `andreina.salas@jrrealty.test` | `Agente123!` |
 
 > In production `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` are **required** —
@@ -165,6 +165,4 @@ integrity enforced in CI/Docker with `--frozen-lockfile`.
 
 - [MCP-SPECIFICATIONS.md](MCP-SPECIFICATIONS.md) — MCP API design
 - [docs/mcp/setup.md](docs/mcp/setup.md) — MCP setup guide
-- [docs/PLANIFICACION-MVP.md](docs/PLANIFICACION-MVP.md) — original MVP
-  planning (Spanish)
 - [AGENTS.md](AGENTS.md) — engineering conventions for AI coding agents

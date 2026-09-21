@@ -133,11 +133,11 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:admin@jrrealty.com.ve"
+                  href="mailto:admin@jrrealty.com"
                   className="inline-flex items-center gap-2.5 transition-colors hover:text-primary"
                 >
                   <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                  admin@jrrealty.com.ve
+                  admin@jrrealty.com
                 </a>
               </li>
               <li className="inline-flex items-center gap-2.5">
