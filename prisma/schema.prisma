@@ -1,5 +1,4 @@
 // Prisma schema — JR Realty (MVP)
-// Fuente autoritativa: docs/PLANIFICACION-MVP.md (sección 5)
 
 generator client {
   provider = "prisma-client-js"
