@@ -22,6 +22,9 @@ mcp-server/node_modules/
 .DS_Store
 *.pem
 
+# local docker overrides (machine-specific port mappings)
+docker-compose.override.yml
+
 # debug
 npm-debug.log*
 pnpm-debug.log*
