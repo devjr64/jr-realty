@@ -62,7 +62,7 @@ describe('formatRelativeTime', () => {
   it('collapses old dates to a short date', () => {
     const old = new Date(Date.now() - 30 * 86_400_000)
     expect(formatRelativeTime(old)).toMatch(
-      /^\d{1,2} (ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\.?$/,
+      /^\d{1,2} (ene|feb|mar|abr|may|jun|jul|ago|sep|sept|oct|nov|dic)\.?$/,
     )
   })
 })

@@ -3,10 +3,12 @@
 import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
+import { after } from 'next/server'
 
 import { requireAdmin } from '@/lib/auth-helpers'
 import { db } from '@/lib/db'
 import { rateLimit } from '@/lib/rate-limit'
+import { sendLeadEmails, type PropertyForEmail } from '@/lib/lead-emails'
 import {
   assignLeadSchema,
   createLeadSchema,
@@ -100,7 +102,7 @@ export async function createLeadAction(
   const { name, email, phone, message, propertyId } = parsed.data
 
   try {
-    await db.lead.create({
+    const lead = await db.lead.create({
       data: {
         name,
         email,
@@ -111,21 +113,33 @@ export async function createLeadAction(
         // status: Prisma default NEW
       },
     })
+
+    // Property-page leads: refresh the specific public property detail page.
+    // We only know the id, so resolve the slug first (cheap indexed lookup).
+    let propertyInfo: PropertyForEmail | undefined
+    if (propertyId) {
+      const property = await db.property.findUnique({
+        where: { id: propertyId },
+        select: { slug: true, title: true },
+      })
+      if (property) {
+        propertyInfo = { slug: property.slug, title: property.title }
+        revalidatePath(`/propiedades/${property.slug}`, 'page')
+      }
+    }
+
+    // Defer email dispatch until after response using Next.js `after()`.
+    // This guarantees the emails are sent even if the response closes before
+    // the promise resolves. The callback runs in the background after the
+    // response is sent, so it never blocks the user.
+    after(async () => {
+      await sendLeadEmails({ lead, property: propertyInfo }).catch((e) =>
+        console.error('[email]', e),
+      )
+    })
   } catch (error) {
     console.error('No se pudo crear el lead', error)
     return { error: 'No se pudo enviar el formulario. Intenta de nuevo.' }
-  }
-
-  // Property-page leads: refresh the specific public property detail page.
-  // We only know the id, so resolve the slug first (cheap indexed lookup).
-  if (propertyId) {
-    const property = await db.property.findUnique({
-      where: { id: propertyId },
-      select: { slug: true },
-    })
-    if (property) {
-      revalidatePath(`/propiedades/${property.slug}`, 'page')
-    }
   }
 
   return { success: true }

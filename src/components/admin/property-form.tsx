@@ -324,6 +324,18 @@ export function PropertyForm({
               placeholder="8.9767"
               disabled={isPending}
             />
+            {initial?.latitude && initial?.longitude ? (
+              <p className="mt-1 text-xs">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${Number(initial.latitude)},${Number(initial.longitude)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                   Verificar en Google Maps 
+                </a>
+              </p>
+            ) : null}
           </FormField>
 
           <FormField label="Longitud" htmlFor="longitude" error={fieldErrors.longitude}>

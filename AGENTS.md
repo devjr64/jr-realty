@@ -16,7 +16,7 @@ pnpm run dev                          # Next dev pinned --port 3000 --hostname l
 pnpm run dev:3001                     # fallback if 3000 busy (also update AUTH_URL)
 pnpm run build                        # must produce 0 Edge warnings, middleware ~86kB
 pnpm run lint                         # eslint next/core-web-vitals
-pnpm test                             # vitest run, 1287 tests expected green
+pnpm test                             # vitest run, 1293 tests expected green
 pnpm run test:coverage                # v8, thresholds 80% lines/fn/branch/stmt
 pnpm run db:migrate                   # prisma migrate dev (local)
 pnpm run db:deploy                    # prisma migrate deploy (prod)
@@ -34,7 +34,7 @@ Single test: `pnpm exec vitest run src/lib/utils/slugify.test.ts` (or any `src/*
 
 - `DATABASE_URL` required. `docker compose up -d db` before any `db:*`.
 - Seed creates SUPER_ADMIN + 3 AGENT users, 8 properties, 3 projects, 12 zones, etc. In production `SEED_ADMIN_EMAIL` + `SEED_ADMIN_PASSWORD` are mandatory (seed throws if missing). Dev fallback generates random password once to stdout.
-- Default dev creds (seed): SUPER_ADMIN `Admin123!`, agents `Agente123!` — emails in `prisma/seed.ts`; prod requires `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD`.
+- Dev creds (seed): agents use `Agente123!` (override with `SEED_AGENT_PASSWORD`). The SUPER_ADMIN email comes from `SEED_ADMIN_EMAIL` (no fallback — seed throws if unset, in dev too) and its password is **random** unless `SEED_ADMIN_PASSWORD` is set — the seed prints it once to stdout on creation; never a fixed default.
 
 ## Auth — Edge/Node Split (Critical)
 
@@ -51,8 +51,12 @@ Single test: `pnpm exec vitest run src/lib/utils/slugify.test.ts` (or any `src/*
 - `src/app/(auth)/` + `src/app/api/auth/` — login + NextAuth handlers.
 - `src/app/api/mcp/` — MCP REST API for AI agents (X-API-Key auth, SUPER_ADMIN only, keys stored as SHA-256 hashes — see `src/app/api/mcp/lib/auth.ts`). `mcp-server/` is a standalone stdio server with its own `package.json`/`node_modules` (gitignored) and is excluded from the Next build via `next.config.ts` webpack rule.
 - `src/components/ui/` — shadcn (style `base-nova`), `sonner` toasts, `nextjs-toploader` in layout, `SubmitButton` for pending state.
-- `src/components/shared/MarkdownRenderer.tsx` — centralized markdown renderer (`prose` via @tailwindcss/typography, XSS-safe). `src/components/shared/BlockRenderer.tsx` + `src/components/admin/block-editor/` — CMS block editor (types include `markdown`).
+- `src/components/shared/markdown-renderer.tsx` — centralized markdown renderer (`prose` via @tailwindcss/typography, XSS-safe). `src/components/shared/block-renderer.tsx` + `src/components/admin/block-editor.tsx` — CMS block editor (types include `markdown`). Component files use kebab-case.
 - `src/lib/validations/` — Zod 4 schemas (blog `content` is `string | block[]` union, `Json` normalized before render).
+- `src/lib/email.ts` — Resend wrapper (best-effort; dev fallback logs to console).
+- `src/lib/lead-emails.ts` — dispatches submitter confirmation + admin notification for new leads.
+- `src/emails/` — React Email templates (plain JSX + inline styles, no deprecated `@react-email/components`).
+- Property detail page uses **free Google Maps Embed API** (no API key required) when lat/lng are set; falls back to zone + address text otherwise.
 - `src/server/actions/` — Server Actions per entity (property/lead/zone/agent/user/project/blog/cms/settings).
 - `prisma/schema.prisma` — 12 models, 9 enums. `binaryTargets = ["native","linux-musl-openssl-3.0.x"]` for Alpine. `public/uploads/` is runtime-only (gitignored, seed uses picsum placeholders).
 

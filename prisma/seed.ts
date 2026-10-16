@@ -223,6 +223,8 @@ async function main() {
         buildAreaM2: 210,
         yearBuilt: 2021,
         address: 'Av. Principal de Las Mercedes, Caracas',
+        latitude: 10.4864,
+        longitude: -66.8653,
         zoneSlug: 'las-mercedes',
         features: [
           'Piscina',
@@ -255,6 +257,8 @@ async function main() {
         buildAreaM2: 85,
         yearBuilt: 2020,
         address: 'Av. Andrés Bello, Los Palos Grandes, Caracas',
+        latitude: 10.5043,
+        longitude: -66.8434,
         zoneSlug: 'los-palos-grandes',
         features: [
           'Piscina',
@@ -287,6 +291,8 @@ async function main() {
         buildAreaM2: 334,
         yearBuilt: 2019,
         address: 'El Rosal, Chacao, Caracas',
+        latitude: 10.4902,
+        longitude: -66.8636,
         zoneSlug: 'el-rosal',
         features: [
           'Piscina',
@@ -319,6 +325,8 @@ async function main() {
         buildAreaM2: 325,
         yearBuilt: 2018,
         address: 'La Lagunita, El Hatillo, Caracas',
+        latitude: 10.4237,
+        longitude: -66.8253,
         zoneSlug: 'el-hatillo',
         features: [
           'Piscina',
@@ -350,6 +358,8 @@ async function main() {
         buildAreaM2: 68,
         yearBuilt: 2015,
         address: 'Av. Luis Roche, Chuao, Caracas',
+        latitude: 10.485,
+        longitude: -66.8601,
         zoneSlug: 'chuao',
         features: [
           'Aire acondicionado',
@@ -380,6 +390,8 @@ async function main() {
         buildAreaM2: 45,
         yearBuilt: 2012,
         address: 'Av. Principal de Sebucán, Caracas',
+        latitude: 10.504,
+        longitude: -66.8361,
         zoneSlug: 'sebucan',
         features: ['Aire acondicionado', 'Seguridad 24/7', 'Elevadores', 'Estacionamiento visitas'],
         tags: [Tag.OPPORTUNITY],
@@ -404,6 +416,8 @@ async function main() {
         buildAreaM2: 141,
         yearBuilt: 2017,
         address: 'Santa Eduvigis, Caracas',
+        latitude: 10.5003,
+        longitude: -66.8385,
         zoneSlug: 'santa-eduvigis',
         features: ['Piscina', 'Gimnasio', 'Seguridad 24/7', 'Parque', 'Área infantil'],
         tags: [Tag.REPOSSESSED, Tag.OPPORTUNITY],
@@ -428,6 +442,8 @@ async function main() {
         buildAreaM2: 480,
         yearBuilt: 2020,
         address: 'Playa El Yaque, Margarita, Nueva Esparta',
+        latitude: 10.897,
+        longitude: -63.9646,
         zoneSlug: 'margarita',
         features: [
           'Piscina',

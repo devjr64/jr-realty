@@ -36,8 +36,16 @@ vi.mock('next/headers', () => ({
   })),
 }))
 
+vi.mock('next/server', () => ({
+  after: vi.fn((fn: () => Promise<void>) => fn()),
+}))
+
 vi.mock('@/lib/auth-helpers', () => ({
   requireAdmin: vi.fn(),
+}))
+
+vi.mock('@/lib/lead-emails', () => ({
+  sendLeadEmails: vi.fn().mockResolvedValue(undefined),
 }))
 
 // Let real rate-limit run but ensure first call passes; we reset buckets between tests

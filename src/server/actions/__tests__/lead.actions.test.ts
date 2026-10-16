@@ -26,8 +26,16 @@ vi.mock('next/headers', () => ({
   headers: vi.fn(),
 }))
 
+vi.mock('next/server', () => ({
+  after: vi.fn((fn: () => Promise<void>) => fn()),
+}))
+
 vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi.fn(),
+}))
+
+vi.mock('@/lib/lead-emails', () => ({
+  sendLeadEmails: vi.fn().mockResolvedValue(undefined),
 }))
 
 import { requireAdmin } from '@/lib/auth-helpers'

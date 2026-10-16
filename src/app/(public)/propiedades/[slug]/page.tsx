@@ -270,6 +270,35 @@ export default async function PropiedadDetallePage({ params }: PropiedadDetalleP
                 <p className="text-sm text-muted-foreground">{property.address}</p>
               </div>
             </div>
+
+            {property.latitude != null && property.longitude != null ? (
+              <div className="mt-4 overflow-hidden rounded-xl border border-border">
+                <iframe
+                  src={`https://maps.google.com/maps?q=${Number(property.latitude)},${Number(property.longitude)}&z=15&output=embed`}
+                  width="100%"
+                  height="300"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  allowFullScreen
+                  title={`Ubicación de ${property.title} en el mapa`}
+                  className="block w-full"
+                />
+              </div>
+            ) : null}
+
+            {(property.latitude != null || property.longitude != null) && (
+              <p className="mt-3 text-right text-sm">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${Number(property.latitude ?? 0)},${Number(property.longitude ?? 0)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Ver en Google Maps 
+                </a>
+              </p>
+            )}
           </div>
         </div>
 
